@@ -1,0 +1,30 @@
+services:
+  proxy:
+    profiles:
+      - disabled
+  
+  db:
+    profiles:
+      - disabled
+  
+  adminer:
+    profiles:
+      - disabled
+
+  backend:
+    depends_on: !reset []
+    environment:
+      FRONTEND_HOST: https://${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}
+      POSTGRES_SERVER: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Variable not set}@postgres:5432/app
+    labels:
+      - traefik.http.routers.${NAME:-full_stack_fastapi_template}-http.rule=Host(`${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}`)
+      - traefik.http.routers.${NAME:-full_stack_fastapi_template}-https.rule=Host(`${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}`)
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
