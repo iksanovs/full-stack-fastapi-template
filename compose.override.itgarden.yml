@@ -18,7 +18,7 @@ services:
       POSTGRES_SERVER: ${POSTGRES_SERVER:-postgres}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Variable not set}@${POSTGRES_SERVER:-postgres}:5432/app
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Variable not set}@${POSTGRES_SERVER:-postgres}:5432/app
     labels:
       - traefik.http.routers.${NAME:-full_stack_fastapi_template}-http.rule=Host(`${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}`)
       - traefik.http.routers.${NAME:-full_stack_fastapi_template}-https.rule=Host(`${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}`)
