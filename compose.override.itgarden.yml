@@ -19,9 +19,13 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Variable not set}@${POSTGRES_SERVER:-postgres}:5432/app
-    labels:
-      - traefik.http.routers.${NAME:-full_stack_fastapi_template}-http.rule=Host(`${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}`)
-      - traefik.http.routers.${NAME:-full_stack_fastapi_template}-https.rule=Host(`${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}`)
+    labels: !override
+      - traefik.enable=true
+      - traefik.http.services.${NAME:-full_stack_fastapi_template}.loadbalancer.server.port=8000
+      - traefik.http.routers.${NAME:-full_stack_fastapi_template}.rule=Host(`${NAME:-full_stack_fastapi_template}.${DOMAIN:-localhost}`)
+      - traefik.http.routers.${NAME:-full_stack_fastapi_template}.entrypoints=websecure
+      - traefik.http.routers.${NAME:-full_stack_fastapi_template}.tls=true
+      - traefik.http.routers.${NAME:-full_stack_fastapi_template}.tls.certresolver=le
     networks:
       - traefik
 
