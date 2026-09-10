@@ -2,6 +2,15 @@ name: Deploy with Docker Compose itgarden
 
 on:
   workflow_dispatch:
+    inputs:
+      action:
+        description: Action
+        required: true
+        type: choice
+        options:
+          - deploy
+          - stop
+          - restart
 
 permissions:
   contents: read
@@ -36,9 +45,33 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Build
-        run: docker compose -f compose.yml -f compose.deploy.yml -f compose.override.itgarden.yml build
-      - name: Prepare database
-        run: docker compose -f compose.yml -f compose.deploy.yml -f compose.override.itgarden.yml run --rm backend bash scripts/prestart.sh
-      - name: Start application
-        run: docker compose -f compose.yml -f compose.deploy.yml -f compose.override.itgarden.yml up -d
+      - name: Deploy
+        run: |
+          ACTION="${{ github.event.inputs.action }}"
+
+          case "$ACTION" in
+          
+            stop)
+              echo "🛑 Stopping services..."
+
+              docker compose down
+              ;;
+
+            restart)
+              echo "🔄 Restarting services..."
+
+              docker compose restart
+              ;;
+              
+            *)
+              echo "🚀 Starting deployment..."
+
+              docker compose down
+              docker compose -f compose.yml -f compose.deploy.yml -f compose.override.itgarden.yml build
+              docker compose -f compose.yml -f compose.deploy.yml -f compose.override.itgarden.yml run --rm backend bash scripts/prestart.sh
+              docker compose -f compose.yml -f compose.deploy.yml -f compose.override.itgarden.yml up -d
+
+              echo "✅ Deployment complete!"
+              ;;
+              
+          esac
